@@ -34,7 +34,7 @@ export default function SignUpPage() {
       } else {
         router.push("/login");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to sign up");
     } finally {
       setLoading(false);
