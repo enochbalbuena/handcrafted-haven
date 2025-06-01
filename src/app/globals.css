@@ -1,6 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --white: #ffffff;
+  --melon: #e0aea4;
+  --raspberry-rose: #b6465f;
+  --burgundy: #890620;
+  --black-bean: #2c0703;
+
+  --background: var(--white);
+  --foreground: var(--black-bean);
+
+  --font-sans: 'Nunito Sans', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,7 +29,7 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
