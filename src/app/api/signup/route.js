@@ -1,6 +1,7 @@
-import clientPromise from "../../lib/mongodb";
-
+import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 export async function POST(request) {
   try {
@@ -11,11 +12,18 @@ export async function POST(request) {
       return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db(); // default DB from URI
+    // Check if username exists
+    const { data: existingUser, error: fetchError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", username)
+      .single();
 
-    // Check if username already exists
-    const existingUser = await db.collection("users").findOne({ username });
+    if (fetchError && fetchError.code !== "PGRST116") {
+      // PGRST116 means no rows found, so ignore it
+      return new Response(JSON.stringify({ error: fetchError.message }), { status: 500 });
+    }
+
     if (existingUser) {
       return new Response(JSON.stringify({ error: "Username already taken" }), { status: 409 });
     }
@@ -25,15 +33,16 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert user
-    const result = await db.collection("users").insertOne({
-      name,
-      username,
-      password: hashedPassword,
-      createdAt: new Date(),
-    });
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ name, username, password: hashedPassword }])
+      .select();
 
-    return new Response(JSON.stringify({ message: "User created", userId: result.insertedId }), { status: 201 });
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
 
+    return new Response(JSON.stringify({ message: "User created", user: data[0] }), { status: 201 });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
