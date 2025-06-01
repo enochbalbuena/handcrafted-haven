@@ -1,0 +1,24 @@
+.header {
+  background-color: #890620;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px
+}
+
+.link {
+  padding: 0px 10px 0px 0px;
+  align-self: flex-start;
+}
+
+.image {
+  margin-left: auto;
+  margin-right: auto;
+}
+.button{
+  background-color: #E0AEA4;
+  padding: 20%;
+}
+
+.button:hover{
+  cursor: pointer;
+}
