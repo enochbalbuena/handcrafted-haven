@@ -1,9 +1,8 @@
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/database";
-import { error } from "console";
 import { validateUserInput } from "@/lib/validation"
 import { checkUsernameExists } from "@/lib/validation";
-import { json } from "stream/consumers";
+
 
 export async function POST(req: Request){
   try{
