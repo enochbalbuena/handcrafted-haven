@@ -54,7 +54,7 @@ export default function LoginPage(){
             <Button type="submit">
               Login
             </Button> 
-            <Link className={styles.link} href={"/singup"}>
+            <Link className={styles.link} href={"/signup"}>
               <Button type="button">
                 Sign up
               </Button>
