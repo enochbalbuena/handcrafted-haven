@@ -4,6 +4,7 @@ import styles from "./login.module.css"
 import Header from "../ui/header"
 import Button from "../ui/button"
 import React from "react"
+import Link from "next/link"
 
 
 
@@ -53,6 +54,11 @@ export default function LoginPage(){
             <Button type="submit">
               Login
             </Button> 
+            <Link className={styles.link} href={"/singup"}>
+              <Button type="button">
+                Sign up
+              </Button>
+            </Link>
           </div> 
         </form>
       </main>
