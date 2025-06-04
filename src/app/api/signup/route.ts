@@ -7,7 +7,7 @@ import { checkUsernameExists } from "@/lib/validation";
 export async function POST(req: Request){
   try{
     const body = await req.json();
-    const { name, username, password } = body;
+    const { name, email, username, password } = body;
     const errorMessage = validateUserInput(body);
     const checkUsername = await checkUsernameExists(body.username)
  
@@ -22,7 +22,7 @@ export async function POST(req: Request){
 
     const {data, error} = await supabase
     .from("users")
-    .insert([{name,username,password: hashedPassword}]);
+    .insert([{name,email,username,password: hashedPassword}]);
 
     if (error){
       return new Response(JSON.stringify({error: `Database error: ${error.message}`}), {status:500});

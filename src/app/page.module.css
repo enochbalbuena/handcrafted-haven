@@ -22,3 +22,15 @@
 .button:hover{
   cursor: pointer;
 }
+
+.reusablebutton{
+  background-color: #890620;
+  border: 1px solid #890620;
+  border-radius: 5px ;
+  padding: 10px;
+  color: #fff;
+}
+
+.reusablebutton:hover{
+  cursor: pointer;
+}

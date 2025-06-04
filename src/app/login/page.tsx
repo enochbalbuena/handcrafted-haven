@@ -1,65 +1,41 @@
-"use client";
+"use client"
 
-import Header from "../ui/header";
-import { useRouter } from "next/navigation";
+import styles from "./login.module.css"
+import Header from "../ui/header"
+import Button from "../ui/button"
+import React from "react"
 
-export default function LoginPage() {
-  const router = useRouter();
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
-      <main className="flex items-center justify-center pt-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
-            Login to your account
-          </h2>
 
-          <form action="/api/login" method="POST" className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                id="username"
-                required
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
+
+
+export default function SignUpPage(){
+
+  return(
+    <div>
+      <Header/>
+      <main className={styles.main}>
+        <form className={styles.form}>
+          <div className={styles.topdiv}>
+            <h1 className={styles.h1}>Login</h1>
+          </div>
+          <div className={styles.div1}>
+            <div className={styles.div3}>
+              <label className={styles.label} htmlFor="username">Username: </label>
+              <input className={styles.input} type="text" name="username" id="username" placeholder="Enter Username" required/>
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
+            <div className={styles.div4}>
+              <label className={styles.label} htmlFor="password">Password: </label>
+              <input className={styles.input} type="password" name="password" id="password" placeholder="Enter Password" required />
             </div>
-
-            <div className="flex gap-4 pt-2">
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
-              >
-                Log In
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/signup")}
-                className="w-full bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition"
-              >
-                Sign Up
-              </button>
-            </div>
-          </form>
-        </div>
+          </div>
+          <div className={styles.div5}>
+            <Button type="submit">
+              Login
+            </Button> 
+          </div> 
+        </form>
       </main>
     </div>
-  );
+  )
 }
