@@ -7,15 +7,35 @@ import React from "react"
 
 
 
+export default function LoginPage(){
+  async function handleSubmit(e:React.FormEvent<HTMLFormElement>){
+    e.preventDefault();
 
+    const formdata = new FormData(e.currentTarget);
+    const username = formdata.get("username");
+    const password = formdata.get("password");
 
-export default function SignUpPage(){
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({username, password}),
+    });
 
+    const data = await response.json();
+
+    if(!response.ok){
+      alert(data.error)
+      return;
+    }
+
+    window.location.href = "/"
+
+  }
   return(
     <div>
       <Header/>
       <main className={styles.main}>
-        <form className={styles.form}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.topdiv}>
             <h1 className={styles.h1}>Login</h1>
           </div>
