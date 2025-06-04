@@ -1,4 +1,4 @@
-// Example usage in a TSX page
+'use client';
 import { useState } from "react";
 import { createReview } from "@/lib/review";
 
