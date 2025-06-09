@@ -1,8 +1,9 @@
 import { supabase } from "./database";
 
 
-export function validateUserInput(data:{name?: string; username?: string; password?:string;}): string |null {
+export function validateUserInput(data:{name?: string;email?: string, username?: string; password?:string;}): string |null {
     if (!data.name) return "Name is required";
+    if (!data.email)
     if (!data.username) return "Username is required";
     if (!data.password) return "Password is required";
     return null;
