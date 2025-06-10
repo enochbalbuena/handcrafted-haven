@@ -29,7 +29,11 @@ export default function LoginPage(){
       return;
     }
 
-    window.location.href = "/"
+    if (data.isSeller) {
+      window.location.href = "/seller-dashboard";
+    } else {
+      window.location.href = "/";
+    }
 
   }
   return(

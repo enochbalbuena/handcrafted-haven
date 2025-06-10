@@ -19,11 +19,12 @@ export default function SignUpPage(){
     const email = formData.get("email")
     const username = formData.get("username");
     const password = formData.get("password");
+    const accountType = formData.get("accountType");
 
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {"Content-Type": "application/json" },
-      body: JSON.stringify({name,email,username,password}),
+      body: JSON.stringify({name,email,username,password, accountType}),
     });
 
     const data = await response.json();
@@ -60,6 +61,17 @@ export default function SignUpPage(){
             <div className={styles.div4}>
               <label className={styles.label} htmlFor="password">Password: </label>
               <input className={styles.input} type="password" name="password" id="password" placeholder="Enter Password" required />
+            </div>
+            <div className={styles.div6}>
+              <label className={styles.label1} htmlFor="text">Account Type: </label>
+              <label className={styles.label2} htmlFor="radio">
+                <input className={styles.input} type="radio" name="accountType" id="radio1" value="User" required />
+                User
+              </label>
+              <label className={styles.label3} htmlFor="radio">
+                <input className={styles.input} type="radio" name="accountType" id="radio2" value="Seller" required />
+                Seller
+              </label>
             </div>
           </div>
           <div className={styles.div5}>

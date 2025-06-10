@@ -7,7 +7,7 @@ import { checkUsernameExists } from "@/lib/validation";
 export async function POST(req: Request){
   try{
     const body = await req.json();
-    const { name, email, username, password } = body;
+    const { name, email, username, password,accountType } = body;
     const errorMessage = validateUserInput(body);
     const checkUsername = await checkUsernameExists(body.username)
  
@@ -20,9 +20,20 @@ export async function POST(req: Request){
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt)
 
+    const userData: any = {
+    name,
+    email,
+    username,
+    password: hashedPassword,
+  };
+
+    if (accountType === "Seller") {
+    userData.seller_id = crypto.randomUUID();
+  }
+
     const {data, error} = await supabase
     .from("users")
-    .insert([{name,email,username,password: hashedPassword}]);
+    .insert([userData]);
 
     if (error){
       return new Response(JSON.stringify({error: `Database error: ${error.message}`}), {status:500});
