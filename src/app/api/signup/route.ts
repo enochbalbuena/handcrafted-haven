@@ -20,19 +20,18 @@ export async function POST(req: Request){
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const {data, error} = await supabase
-    .from("users")
-    .insert([{name,email,username,password: hashedPassword}]);
+    const { error: dbError } = await supabase
+      .from("users")
+      .insert([{name,email,username,password: hashedPassword}]);
 
-    if (error){
-      return new Response(JSON.stringify({error: `Database error: ${error.message}`}), {status:500});
+    if (dbError){
+      return new Response(JSON.stringify({error: `Database error: ${dbError.message}`}), {status:500});
     }
 
-    if(!error) return new Response(JSON.stringify({message: "You are logged in"}), {status:201});
-
-
+    return new Response(JSON.stringify({message: "You are logged in"}), {status:201});
     
   }catch (error){
+    console.error(error); // Log the error for debugging
       return new Response(
         JSON.stringify({error: "a error occured"}), {status: 500}
       );

@@ -1,24 +1,23 @@
-import { supabase } from "./database";
+import { supabase } from './database';
 
-export interface Review {
-    item_id: string;      
-    reviewer_name: string;
-    review_text: string;
+export interface ReviewInput {
+  item_id: string;
+  reviewer_name: string;
+  review_text: string;
 }
 
-export async function createReview(review: Review): Promise<string | null> {
-    const { data, error } = await supabase
-        .from("reviews")
-        .insert([
-            {
-                item_id: review.item_id,
-                reviewer_name: review.reviewer_name,
-                review_text: review.review_text,
-            }
-        ]);
+export async function createReview(review: ReviewInput): Promise<string | null> {
+  const { error } = await supabase
+    .from('reviews')
+    .insert([
+      {
+        ...review,
+        created_at: new Date().toISOString(),
+      },
+    ]);
 
-    if (error) {
-        return `Database error: ${error.message}`;
-    }
-    return null;
+  if (error) {
+    return error.message;
+  }
+  return null;
 }
