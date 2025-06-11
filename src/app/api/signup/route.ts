@@ -25,7 +25,7 @@ export async function POST(req: Request){
     email,
     username,
     password: hashedPassword,
-  };
+    };
 
     if (accountType === "Seller") {
     userData.seller_id = crypto.randomUUID();

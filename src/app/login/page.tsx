@@ -23,6 +23,7 @@ export default function LoginPage(){
     });
 
     const data = await response.json();
+    localStorage.setItem("token", data.token);
 
     if(!response.ok){
       alert(data.error)
@@ -30,7 +31,7 @@ export default function LoginPage(){
     }
 
     if (data.isSeller) {
-      window.location.href = "/seller-dashboard";
+      window.location.href = "/";
     } else {
       window.location.href = "/";
     }

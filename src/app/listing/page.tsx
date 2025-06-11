@@ -9,9 +9,10 @@ export default function listing() {
     e.preventDefault();
 
     const formdata = new FormData(e.currentTarget);
-
+    const token = localStorage.getItem("token");
     const response = await fetch("/api/listing", {
       method: "POST",
+      headers: { "Authorization": `Bearer ${token}`},
       body: formdata,
     });
 
