@@ -1,51 +1,59 @@
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/database";
-import { validateUserInput } from "@/lib/validation"
-import { checkUsernameExists } from "@/lib/validation";
+import { validateUserInput, checkUsernameExists } from "@/lib/validation";
 
+type UserPayload = {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+  accountType: string;
+};
 
-export async function POST(req: Request){
-  try{
-    const body = await req.json();
-    const { name, email, username, password,accountType } = body;
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as UserPayload;
+    const { name, email, username, password, accountType } = body;
+
     const errorMessage = validateUserInput(body);
-    const checkUsername = await checkUsernameExists(body.username)
- 
-    if(errorMessage) return new Response(
-      JSON.stringify({error: errorMessage}), {status: 400}
-    );
+    const checkUsername = await checkUsernameExists(username);
 
-    if (checkUsername) return new Response(JSON.stringify({error: checkUsername}), {status:400});
+    if (errorMessage) {
+      return new Response(JSON.stringify({ error: errorMessage }), { status: 400 });
+    }
+
+    if (checkUsername) {
+      return new Response(JSON.stringify({ error: checkUsername }), { status: 400 });
+    }
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt)
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    const userData: any = {
-    name,
-    email,
-    username,
-    password: hashedPassword,
+    const userData = {
+      name,
+      email,
+      username,
+      password: hashedPassword,
     };
 
     if (accountType === "Seller") {
-    userData.seller_id = crypto.randomUUID();
-  }
-
-    const {data, error} = await supabase
-    .from("users")
-    .insert([userData]);
-
-    if (error){
-      return new Response(JSON.stringify({error: `Database error: ${error.message}`}), {status:500});
+      (userData as { seller_id?: string }).seller_id = crypto.randomUUID();
     }
 
-    if(!error) return new Response(JSON.stringify({message: "You are logged in"}), {status:201});
+    const insertResult = await supabase.from("users").insert([userData]);
 
-
-    
-  }catch (error){
+    if (insertResult.error) {
       return new Response(
-        JSON.stringify({error: "a error occured"}), {status: 500}
+        JSON.stringify({ error: `Database error: ${insertResult.error.message}` }),
+        { status: 500 }
       );
+    }
+
+    return new Response(JSON.stringify({ message: "You are logged in" }), { status: 201 });
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "An error occurred during signup." }),
+      { status: 500 }
+    );
   }
 }
