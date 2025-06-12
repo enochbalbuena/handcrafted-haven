@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { username, password } = body;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("users")
     .select("*")
     .eq("username", username)
