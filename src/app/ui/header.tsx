@@ -26,7 +26,12 @@ export default function Header() {
               Home
             </Link>
           </li>
-          <li className={styles.dropdown}>
+          <li>
+            <Link href="/products" className={styles.navLink}>
+              Shop
+            </Link>
+          </li>
+          {/* <li className={styles.dropdown}>
             <Link href="/shop" className={styles.navLink}>
               Shop
             </Link>
@@ -38,7 +43,7 @@ export default function Header() {
               <li><Link href="/shop/wood">Wood & Furniture</Link></li>
               <li><Link href="/shop/featured">Featured Items</Link></li>
             </ul>
-          </li>
+          </li> */}
           <li>
             <Link href="/artisans" className={styles.navLink}>
               Artisans
