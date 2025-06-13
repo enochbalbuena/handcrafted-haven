@@ -26,8 +26,7 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Only sellers can create listings" }), { status: 403 });
     }
 
-    // Parse form-data from the request (in Node.js environment)
-    // For edge or serverless environments, you may need to use libraries like `formidable`
+
     const formData = await req.formData();
 
     const imageFile = formData.get("image") as File;
@@ -38,11 +37,8 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Missing image, description, or price" }), { status: 400 });
     }
 
-    // 1. Upload the image file to Supabase Storage
-    const filePath = `images/${Date.now()}_${imageFile.name}`; // unique path with timestamp
+    const filePath = `images/${Date.now()}_${imageFile.name}`;
 
-    // IMPORTANT: `imageFile` needs to be converted to a Blob or Readable stream if necessary
-    // With Next.js edge functions, `imageFile` should be a Blob compatible with supabase.storage.upload
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("images")
@@ -52,11 +48,11 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Upload error: " + uploadError.message }), { status: 500 });
     }
 
-    // 2. Get public URL for the uploaded image
+
     const { data: urlData } = supabase.storage.from("images").getPublicUrl(filePath);
     const imageUrl = urlData.publicUrl;
 
-    // 3. Insert listing data into the database
+
     const listingData = {
       image: imageUrl,
       description,

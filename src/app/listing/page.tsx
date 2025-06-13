@@ -22,6 +22,8 @@ export default function listing() {
       alert(data.error);
       return;
     }
+
+    window.location.href= "/"
   }
 
   return (
