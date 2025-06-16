@@ -44,13 +44,12 @@ export default function EditListingPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let uploadedUrls: string[] = [];
+    const uploadedUrls: string[] = [];
 
     for (const file of newImageFiles) {
       const ext = file.name.split('.').pop();
       const fileName = `listing-${id}-${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
-      const { error: uploadError } = await supabase
-        .storage
+      const { error: uploadError } = await supabase.storage
         .from('listing-images')
         .upload(fileName, file);
 
