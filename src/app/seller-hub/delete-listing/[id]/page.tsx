@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/database';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/app/ui/header';
 import styles from '../../seller.module.css';
+import Image from 'next/image';
 
 export default function DeleteListingPage() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function DeleteListingPage() {
   const [title, setTitle] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -63,12 +63,12 @@ export default function DeleteListingPage() {
 
         {images.length > 0 ? (
           <div style={{ position: 'relative', width: '300px', height: '300px', marginBottom: '1rem' }}>
-            <img
+            <Image
               src={images[currentIndex]}
               alt={`Image ${currentIndex + 1}`}
+              width={300}
+              height={300}
               style={{
-                width: '100%',
-                height: '100%',
                 objectFit: 'cover',
                 borderRadius: '8px'
               }}
