@@ -51,9 +51,7 @@ export default function Header() {
         <ul className={styles.navList}>
           <li><Link href="/" className={styles.navLink}>Home</Link></li>
           <li><Link href="/products" className={styles.navLink}>Shop</Link></li>
-          <li><Link href="/artisans" className={styles.navLink}>Artisans</Link></li>
-          <li><Link href="/seller-hub" className={styles.navLink}>Start Selling</Link></li>
-          <li><Link href="/about" className={styles.navLink}>About</Link></li>
+          <li><Link href="/seller-hub" className={styles.navLink}>Seller Profile</Link></li>
         </ul>
       </nav>
 

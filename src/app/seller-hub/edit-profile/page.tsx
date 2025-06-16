@@ -10,7 +10,12 @@ import styles from '../seller.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [profile, setProfile] = useState({ name: '', bio: '', location: '', profile_image_url: '' });
+  const [profile, setProfile] = useState({
+    name: '',
+    bio: '',
+    location: '',
+    profile_image_url: '',
+  });
   const [userId, setUserId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -70,7 +75,11 @@ export default function EditProfilePage() {
       .eq('id', userId);
 
     if (!updateError) {
-      setProfile((prev) => ({ ...prev, profile_image_url: imageUrl }));
+      // Add cache-busting timestamp
+      setProfile((prev) => ({
+        ...prev,
+        profile_image_url: `${imageUrl}?t=${new Date().getTime()}`,
+      }));
     }
 
     setUploading(false);
@@ -81,11 +90,10 @@ export default function EditProfilePage() {
 
     setDeleting(true);
 
-    // Extract path from public URL
     const parts = profile.profile_image_url.split('/');
-    const filePath = `${userId}/` + parts[parts.length - 1];
+    const cleanFileName = parts[parts.length - 1].split('?')[0]; // remove cache-busting query
+    const filePath = `${userId}/${cleanFileName}`;
 
-    // Delete file from bucket
     const { error: deleteError } = await supabase.storage
       .from('profile-pictures')
       .remove([filePath]);
@@ -96,7 +104,6 @@ export default function EditProfilePage() {
       return;
     }
 
-    // Clear URL in sellers table
     const { error: updateError } = await supabase
       .from('sellers')
       .update({ profile_image_url: '' })
@@ -112,11 +119,14 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     if (!userId) return;
 
-    await supabase.from('sellers').update({
-      name: profile.name,
-      bio: profile.bio,
-      location: profile.location,
-    }).eq('id', userId);
+    await supabase
+      .from('sellers')
+      .update({
+        name: profile.name,
+        bio: profile.bio,
+        location: profile.location,
+      })
+      .eq('id', userId);
 
     router.push('/seller-hub');
   };
@@ -187,11 +197,7 @@ export default function EditProfilePage() {
           />
 
           <div className={styles.actions}>
-            <button
-              type="button"
-              onClick={handleSave}
-              className={styles.button}
-            >
+            <button type="button" onClick={handleSave} className={styles.button}>
               Save Changes
             </button>
             <Link href="/seller-hub" className={styles.buttonDanger}>

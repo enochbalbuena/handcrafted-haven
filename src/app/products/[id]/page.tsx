@@ -29,7 +29,7 @@ export default function ProductDetailPage() {
 
       if (listing?.seller_id) {
         const { data: seller } = await supabase
-          .from('users')
+          .from('sellers')
           .select('name')
           .eq('id', listing.seller_id)
           .single();

@@ -89,6 +89,7 @@ export default function SellerHubPage() {
             <p>No profile picture uploaded.</p>
           )}
 
+          <h3 style={{ marginTop: '1rem' }}>{seller.name}</h3>
           <p><strong>Bio:</strong> {seller.bio || 'No bio added yet.'}</p>
           <p><strong>Location:</strong> {seller.location || 'No location provided.'}</p>
 
