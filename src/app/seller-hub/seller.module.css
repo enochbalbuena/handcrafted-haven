@@ -204,11 +204,13 @@
 }
 
 /* General Font */
-:global(body),
-:global(html) {
-  font-family: 'Poppins', sans-serif;
-  color: #2c0703;
-  background-color: white;
+:global {
+  body,
+  html {
+    font-family: 'Poppins', sans-serif;
+    color: #2c0703;
+    background-color: white;
+  }
 }
 
 .sectionTitle {
