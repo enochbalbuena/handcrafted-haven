@@ -73,7 +73,6 @@ export default function SellerHubPage() {
   return (
     <div>
       <Header />
-
       <main className={styles.container}>
         <section style={{ marginTop: '2rem' }}>
           <h2 className={styles.sectionTitle}>Profile</h2>

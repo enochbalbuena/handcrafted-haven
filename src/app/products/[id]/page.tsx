@@ -6,13 +6,30 @@ import { supabase } from '@/lib/database';
 import Header from '@/app/ui/header';
 import styles from '../products.module.css';
 
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  images?: string[];
+  seller_id: string;
+}
+
+interface Review {
+  id: string;
+  reviewer_name: string;
+  review_text: string;
+  rating: number;
+  created_at: string;
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const id = params?.id as string;
 
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [sellerName, setSellerName] = useState('Unknown Artisan');
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewText, setReviewText] = useState('');
   const [reviewerName, setReviewerName] = useState('');
   const [rating, setRating] = useState(5);
@@ -25,6 +42,9 @@ export default function ProductDetailPage() {
         .select('*')
         .eq('id', id)
         .single();
+
+      if (!listing) return;
+
       setProduct(listing);
 
       if (listing?.seller_id) {
@@ -41,6 +61,7 @@ export default function ProductDetailPage() {
         .select('*')
         .eq('item_id', id)
         .order('created_at', { ascending: false });
+
       setReviews(reviewData || []);
     };
 
@@ -58,22 +79,19 @@ export default function ProductDetailPage() {
       rating
     });
 
-    if (error) {
-      alert('Failed to submit review');
-      return;
+    if (!error) {
+      setReviewText('');
+      setReviewerName('');
+      setRating(5);
+
+      const { data: updatedReviews } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('item_id', id)
+        .order('created_at', { ascending: false });
+
+      setReviews(updatedReviews || []);
     }
-
-    setReviewText('');
-    setReviewerName('');
-    setRating(5);
-
-    const { data: updatedReviews } = await supabase
-      .from('reviews')
-      .select('*')
-      .eq('item_id', id)
-      .order('created_at', { ascending: false });
-
-    setReviews(updatedReviews || []);
   };
 
   const renderStars = (value: number) => '★'.repeat(value) + '☆'.repeat(5 - value);
@@ -84,7 +102,7 @@ export default function ProductDetailPage() {
 
   if (!product) return <p>Loading...</p>;
 
-  const images: string[] = Array.isArray(product.images) ? product.images : product.image ? [product.image] : [];
+  const images = Array.isArray(product.images) ? product.images : [];
 
   const handlePrev = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -109,6 +127,7 @@ export default function ProductDetailPage() {
             color: '#2c0703'
           }}
         >
+          {/* Product Image Carousel */}
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', width: '300px', height: '300px' }}>
               {images.length > 0 ? (
@@ -127,42 +146,8 @@ export default function ProductDetailPage() {
               )}
               {images.length > 1 && (
                 <>
-                  <button
-                    onClick={handlePrev}
-                    style={{
-                      position: 'absolute',
-                      left: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'black',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '30px',
-                      height: '30px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'black',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '30px',
-                      height: '30px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ›
-                  </button>
+                  <button onClick={handlePrev} className={styles.carouselButton}>‹</button>
+                  <button onClick={handleNext} className={styles.carouselButton}>›</button>
                 </>
               )}
             </div>
@@ -179,11 +164,12 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
+          {/* Description */}
           <hr style={{ margin: '2rem 0' }} />
-
           <h2 style={{ fontSize: '1.5rem' }}>Description</h2>
           <p style={{ marginBottom: '2rem' }}>{product.description}</p>
 
+          {/* Review Form */}
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Leave a Review</h2>
           <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
@@ -216,8 +202,8 @@ export default function ProductDetailPage() {
             <button className={styles.addToCartButton} type="submit">Submit Review</button>
           </form>
 
+          {/* Reviews */}
           <hr style={{ margin: '2rem 0' }} />
-
           <h2 style={{ fontSize: '1.5rem' }}>Reviews</h2>
           {reviews.length === 0 ? (
             <p style={{ fontStyle: 'italic' }}>No reviews yet.</p>
