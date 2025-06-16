@@ -102,6 +102,7 @@
   gap: 2rem;
   justify-content: center;
   margin-top: 1rem;
+  margin-bottom: 4rem; /* Added bottom margin */
 }
 
 .card {
@@ -203,7 +204,8 @@
 }
 
 /* General Font */
-body, html {
+:global(body),
+:global(html) {
   font-family: 'Poppins', sans-serif;
   color: #2c0703;
   background-color: white;
@@ -215,13 +217,4 @@ body, html {
   font-weight: 700;
   margin: 4rem 0 2rem; /* Added top margin */
   color: #2c0703;
-}
-
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin-top: 1rem;
-  margin-bottom: 4rem; /* Added bottom margin */
 }
