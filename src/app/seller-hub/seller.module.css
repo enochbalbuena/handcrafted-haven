@@ -9,7 +9,6 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Logo Section */
 .logoSection {
   flex-shrink: 0;
 }
@@ -23,7 +22,6 @@
   transform: scale(1.05);
 }
 
-/* Main Navigation */
 .mainNav {
   flex: 1;
   margin: 0 2rem;
@@ -67,7 +65,6 @@
   width: 100%;
 }
 
-/* Container */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -75,7 +72,6 @@
   background-color: white;
 }
 
-/* Sections */
 .sectionTitle {
   text-align: center;
   font-size: 2.5rem;
@@ -102,7 +98,7 @@
   gap: 2rem;
   justify-content: center;
   margin-top: 1rem;
-  margin-bottom: 4rem; /* Added bottom margin */
+  margin-bottom: 4rem;
 }
 
 .card {
@@ -132,7 +128,6 @@
   margin-bottom: 1rem;
 }
 
-/* Form Elements */
 .form {
   display: flex;
   flex-direction: column;
@@ -201,22 +196,4 @@
 
 .buttonDanger:hover {
   background-color: #f8f9fa;
-}
-
-/* General Font */
-:global {
-  body,
-  html {
-    font-family: 'Poppins', sans-serif;
-    color: #2c0703;
-    background-color: white;
-  }
-}
-
-.sectionTitle {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 4rem 0 2rem; /* Added top margin */
-  color: #2c0703;
 }
