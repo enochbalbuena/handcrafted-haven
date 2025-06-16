@@ -6,10 +6,30 @@ import Header from '../ui/header';
 import Link from 'next/link';
 import styles from './seller.module.css';
 
+interface User {
+  id: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+  bio: string;
+  location: string;
+  profile_image_url: string;
+}
+
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  images: string[];
+}
+
 export default function SellerHubPage() {
-  const [user, setUser] = useState<any>(null);
-  const [seller, setSeller] = useState<any>(null);
-  const [listings, setListings] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [carouselIndices, setCarouselIndices] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
@@ -20,12 +40,13 @@ export default function SellerHubPage() {
         return;
       }
 
-      setUser(userData.user);
+      const currentUser = userData.user as User;
+      setUser(currentUser);
 
       const { data: sellerData } = await supabase
         .from('sellers')
         .select('*')
-        .eq('id', userData.user.id)
+        .eq('id', currentUser.id)
         .single();
 
       if (!sellerData) {
@@ -33,18 +54,19 @@ export default function SellerHubPage() {
         return;
       }
 
-      setSeller(sellerData);
+      setSeller(sellerData as Seller);
 
       const { data: sellerListings } = await supabase
         .from('listing')
         .select('*')
-        .eq('seller_id', userData.user.id)
+        .eq('seller_id', currentUser.id)
         .order('created_at', { ascending: false });
 
       if (sellerListings) {
-        setListings(sellerListings);
+        const typedListings = sellerListings as Listing[];
+        setListings(typedListings);
         const indices: { [key: string]: number } = {};
-        sellerListings.forEach((l) => {
+        typedListings.forEach((l) => {
           indices[l.id] = 0;
         });
         setCarouselIndices(indices);
