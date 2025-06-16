@@ -1,15 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { supabase } from '@/lib/database';
 import { useRouter } from 'next/navigation';
 import Header from '../../ui/header';
 import styles from '../seller.module.css';
+import Image from 'next/image';
+
+interface User {
+  id: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+  bio: string;
+  location: string;
+  profile_image_url?: string;
+}
 
 export default function AddListingPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [seller, setSeller] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -26,7 +39,7 @@ export default function AddListingPage() {
         return;
       }
 
-      setUser(userData.user);
+      setUser({ id: userData.user.id });
 
       const { data: sellerData } = await supabase
         .from('sellers')
@@ -45,7 +58,7 @@ export default function AddListingPage() {
     fetchSellerData();
   }, [router]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const filesArray = Array.from(e.target.files);
@@ -63,7 +76,7 @@ export default function AddListingPage() {
     setPreviewUrls(newPreviews);
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
@@ -146,10 +159,12 @@ export default function AddListingPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
             {previewUrls.map((url, index) => (
               <div key={index} style={{ position: 'relative' }}>
-                <img
+                <Image
                   src={url}
                   alt={`Preview ${index}`}
-                  style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }}
+                  width={120}
+                  height={120}
+                  style={{ objectFit: 'cover', borderRadius: 8 }}
                 />
                 <button
                   type="button"
