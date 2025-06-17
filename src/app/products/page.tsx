@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/database';
 import Header from '@/app/ui/header';
 import styles from './products.module.css';
+import AddToCartButton from '../ui/addToCart';
 
 type Listing = {
   id: string;
@@ -296,7 +297,7 @@ export default function ProductsPage() {
                       </span>
                     </div>
                     <p className={styles.productPrice}>${product.price.toFixed(2)}</p>
-                    <button className={styles.addToCartButton}>Add to Cart</button>
+                    <AddToCartButton product={product}/>
                   </div>
                 </div>
               ))}

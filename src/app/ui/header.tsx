@@ -1,12 +1,36 @@
-'use client';
+
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/database";
 import styles from "../page.module.css";
+import { useEffect, useState } from "react";
 
 export default function Header() {
+
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const totalQuantity = cart.reduce(
+        (acc: number, item: { quantity?: number }) => acc + (item.quantity || 1),
+        0
+      );
+      setCartCount(totalQuantity);
+    };
+
+    updateCartCount();
+
+    window.addEventListener("cartUpdated", updateCartCount);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
+  }, []);
+
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -49,6 +73,31 @@ export default function Header() {
       {/* Main Navigation */}
       <nav className={styles.mainNav}>
         <ul className={styles.navList}>
+          <li>
+            <Link href="/" className={styles.navLink}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link href="/products" className={styles.navLink}>
+              Shop
+            </Link>
+          </li>
+          <li>
+            <Link href="/artisans" className={styles.navLink}>
+              Artisans
+            </Link>
+          </li>
+          <li>
+            <Link href="/sell" className={styles.navLink}>
+              Start Selling
+            </Link>
+          </li>
+          <li>
+            <Link href="/about" className={styles.navLink}>
+              About
+            </Link>
+          </li>
           <li><Link href="/" className={styles.navLink}>Home</Link></li>
           <li><Link href="/products" className={styles.navLink}>Shop</Link></li>
           <li><Link href="/seller-hub" className={styles.navLink}>Seller Profile</Link></li>
@@ -71,7 +120,7 @@ export default function Header() {
       <div className={styles.userActions}>
         <Link href="/cart" className={styles.iconLink}>
           <span className={styles.cartIcon}>🛒</span>
-          <span className={styles.cartCount}>0</span>
+          <span className={styles.cartCount}>{cartCount}</span>
         </Link>
         <Link href="/favorites" className={styles.iconLink}>
           <span className={styles.favoriteIcon}>❤️</span>
