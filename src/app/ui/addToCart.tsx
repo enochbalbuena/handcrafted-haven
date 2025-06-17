@@ -1,42 +1,54 @@
 import React from "react";
 import styles from "@/app/products/products.module.css";
 
-interface Product {
+
+interface ProductFromList {
+  id?: string;
+  title?: string;
+  images?: string[];
+  price: number;
+  quantity?: number;
+}
+
+interface CartItem {
   id?: string;
   name?: string;
-  description?: string;
   image?: string;
-  price?: number;
-  rating?: number;
-  reviews?: number;
+  price: number;
   quantity?: number;
 }
 
 interface AddToCartButtonProps {
-  product: Product;
+  product: ProductFromList;
 }
 
 export default function AddToCartButton({ product }: AddToCartButtonProps) {
   function handleClick() {
-  const cart: Product[] = JSON.parse(localStorage.getItem("cart") || "[]");
+    const cart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
 
-  const existingIndex = cart.findIndex((item) => item.id === product.id);
+    const existingIndex = cart.findIndex((item) => item.id === product.id);
 
-  if (existingIndex !== -1) {
-    // If found, update the quantity
-    const updatedProduct = {
-      ...cart[existingIndex],
-      quantity: (cart[existingIndex].quantity || 1) + 1,
-    };
-    cart[existingIndex] = updatedProduct;
-  } else {
-    // If not found, add the product with quantity 1
-    cart.push({ ...product, quantity: 1 });
+    if (existingIndex !== -1) {
+      // Update quantity if product already in cart
+      const updatedProduct = {
+        ...cart[existingIndex],
+        quantity: (cart[existingIndex].quantity || 1) + 1,
+      };
+      cart[existingIndex] = updatedProduct;
+    } else {
+      // Add new product to cart, mapping title to name and images[0] to image
+      cart.push({
+        id: product.id,
+        name: product.title || "Unknown Product",
+        price: product.price,
+        image: product.images && product.images.length > 0 ? product.images[0] : "",
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cartUpdated"));
   }
-
-  localStorage.setItem("cart", JSON.stringify(cart));
-  window.dispatchEvent(new Event("cartUpdated"));
-}
 
   return (
     <button className={styles.addToCartButton} onClick={handleClick}>

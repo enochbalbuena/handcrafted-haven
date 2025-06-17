@@ -1,16 +1,16 @@
-
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/database";
 import styles from "../page.module.css";
-import { useEffect, useState } from "react";
 
 export default function Header() {
-
   const [cartCount, setCartCount] = useState(0);
+  const [loggedIn, setLoggedIn] = useState(false);
 
+  // Update cart count from localStorage
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -22,7 +22,6 @@ export default function Header() {
     };
 
     updateCartCount();
-
     window.addEventListener("cartUpdated", updateCartCount);
 
     return () => {
@@ -30,8 +29,7 @@ export default function Header() {
     };
   }, []);
 
-  const [loggedIn, setLoggedIn] = useState(false);
-
+  // Track login session
   useEffect(() => {
     const getSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -72,31 +70,6 @@ export default function Header() {
       {/* Main Navigation */}
       <nav className={styles.mainNav}>
         <ul className={styles.navList}>
-          <li>
-            <Link href="/" className={styles.navLink}>
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/products" className={styles.navLink}>
-              Shop
-            </Link>
-          </li>
-          <li>
-            <Link href="/artisans" className={styles.navLink}>
-              Artisans
-            </Link>
-          </li>
-          <li>
-            <Link href="/sell" className={styles.navLink}>
-              Start Selling
-            </Link>
-          </li>
-          <li>
-            <Link href="/about" className={styles.navLink}>
-              About
-            </Link>
-          </li>
           <li><Link href="/" className={styles.navLink}>Home</Link></li>
           <li><Link href="/products" className={styles.navLink}>Shop</Link></li>
           <li><Link href="/seller-hub" className={styles.navLink}>Seller Profile</Link></li>

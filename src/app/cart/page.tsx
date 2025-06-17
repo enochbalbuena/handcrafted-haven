@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../ui/header";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   image?: string;
@@ -16,26 +16,35 @@ export default function CartPage() {
   const [cart, setCart] = useState<Product[]>([]);
 
   useEffect(() => {
+    // Load cart from localStorage when component mounts
     const storedCart: Product[] = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(storedCart);
   }, []);
 
-  const deleteOneItem = (id: number) => {
+  const deleteOneItem = (id: string) => {
     setCart((prevCart) => {
-      const updatedCart = prevCart.map((item) => {
-        if (item.id === id) {
-          const newQuantity = (item.quantity || 1) - 1;
-          return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
-        }
-        return item;
-      }).filter(Boolean) as Product[];
+      const updatedCart = prevCart
+        .map((item) => {
+          if (item.id === id) {
+            const newQuantity = (item.quantity || 1) - 1;
+            // If quantity after decrement is 0 or less, remove item (return null)
+            return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
+          }
+          return item;
+        })
+        .filter(Boolean) as Product[]; // Remove nulls
 
+      // Update localStorage with new cart state
       localStorage.setItem("cart", JSON.stringify(updatedCart));
+      // Dispatch a custom event to notify other parts of the app
       window.dispatchEvent(new Event("cartUpdated"));
 
       return updatedCart;
     });
   };
+
+  // Calculate total price = sum of price * quantity
+  const totalPrice = cart.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
 
   return (
     <div>
@@ -72,6 +81,10 @@ export default function CartPage() {
               <button onClick={() => deleteOneItem(item.id)}>Delete one</button>
             </div>
           ))}
+          {/* Total price displayed below all items */}
+          <h2 style={{ borderTop: "2px solid #333", paddingTop: "1rem" }}>
+            Total: ${totalPrice.toFixed(2)}
+          </h2>
         </>
       )}
     </div>
