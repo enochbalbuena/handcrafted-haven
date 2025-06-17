@@ -1,8 +1,36 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/database";
 import styles from "../page.module.css";
 
 export default function Header() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setLoggedIn(!!user);
+    };
+
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
   return (
     <header className={styles.header}>
       {/* Logo */}
@@ -21,44 +49,9 @@ export default function Header() {
       {/* Main Navigation */}
       <nav className={styles.mainNav}>
         <ul className={styles.navList}>
-          <li>
-            <Link href="/" className={styles.navLink}>
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/products" className={styles.navLink}>
-              Shop
-            </Link>
-          </li>
-          {/* <li className={styles.dropdown}>
-            <Link href="/shop" className={styles.navLink}>
-              Shop
-            </Link>
-            <ul className={styles.dropdownMenu}>
-              <li><Link href="/shop">All Products</Link></li>
-              <li><Link href="/shop/pottery">Pottery & Ceramics</Link></li>
-              <li><Link href="/shop/jewelry">Jewelry & Accessories</Link></li>
-              <li><Link href="/shop/textiles">Textiles & Fiber</Link></li>
-              <li><Link href="/shop/wood">Wood & Furniture</Link></li>
-              <li><Link href="/shop/featured">Featured Items</Link></li>
-            </ul>
-          </li> */}
-          <li>
-            <Link href="/artisans" className={styles.navLink}>
-              Artisans
-            </Link>
-          </li>
-          <li>
-            <Link href="/sell" className={styles.navLink}>
-              Start Selling
-            </Link>
-          </li>
-          <li>
-            <Link href="/about" className={styles.navLink}>
-              About
-            </Link>
-          </li>
+          <li><Link href="/" className={styles.navLink}>Home</Link></li>
+          <li><Link href="/products" className={styles.navLink}>Shop</Link></li>
+          <li><Link href="/seller-hub" className={styles.navLink}>Seller Profile</Link></li>
         </ul>
       </nav>
 
@@ -70,9 +63,7 @@ export default function Header() {
             placeholder="Search handcrafted items..."
             className={styles.searchInput}
           />
-          <button className={styles.searchButton}>
-            🔍
-          </button>
+          <button className={styles.searchButton}>🔍</button>
         </div>
       </div>
 
@@ -85,15 +76,17 @@ export default function Header() {
         <Link href="/favorites" className={styles.iconLink}>
           <span className={styles.favoriteIcon}>❤️</span>
         </Link>
-        <Link href="/login" className={styles.loginLink}>
-          <button className={styles.loginButton}>Login</button>
-        </Link>
+        {loggedIn ? (
+          <button onClick={handleLogout} className={styles.loginButton}>Logout</button>
+        ) : (
+          <Link href="/login" className={styles.loginLink}>
+            <button className={styles.loginButton}>Login</button>
+          </Link>
+        )}
       </div>
 
       {/* Mobile Menu Toggle */}
-      <button className={styles.mobileMenuToggle}>
-        ☰
-      </button>
+      <button className={styles.mobileMenuToggle}>☰</button>
     </header>
   );
 }

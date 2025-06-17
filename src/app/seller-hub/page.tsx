@@ -2,273 +2,249 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/database';
-import styles from './seller.module.css';
-import Image from 'next/image';
+import Header from '../ui/header';
 import Link from 'next/link';
+import styles from './seller.module.css';
 
-type SellerProfile = {
-  id?: string;
+interface User {
+  id: string;
+}
+
+interface Seller {
+  id: string;
   name: string;
   bio: string;
   location: string;
-  profile_image_url?: string;
-};
-
-type Listing = {
-  id: number;
-  title: string;
-  image: string;
-};
-
-function parseJwt(token: string) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch {
-    return null;
-  }
+  profile_image_url: string;
 }
 
-export default function SellerPage() {
-  const [profile, setProfile] = useState<SellerProfile>({ name: '', bio: '', location: '' });
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  images: string[];
+}
+
+export default function SellerHubPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [carouselIndices, setCarouselIndices] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+    const fetchSellerData = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        window.location.href = '/login';
+        return;
+      }
 
-      const decoded = parseJwt(token);
-      if (!decoded?.id) return;
+      const currentUser = userData.user as User;
+      setUser(currentUser);
 
       const { data: sellerData } = await supabase
         .from('sellers')
         .select('*')
-        .eq('id', decoded.id)
+        .eq('id', currentUser.id)
         .single();
 
-      let finalProfile: SellerProfile = {
-        id: decoded.id,
-        name: '',
-        bio: '',
-        location: '',
-        profile_image_url: ''
-      };
-
-      if (sellerData) {
-        finalProfile = {
-          id: sellerData.id,
-          name: sellerData.name || '',
-          bio: sellerData.bio || '',
-          location: sellerData.location || '',
-          profile_image_url: sellerData.profile_image_url || '',
-        };
-      } else {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('name')
-          .eq('id', decoded.id)
-          .single();
-        finalProfile.name = userData?.name || '';
-      }
-
-      setProfile(finalProfile);
-
-      const { data: listingsData } = await supabase
-        .from('listing')
-        .select('id, title, image')
-        .eq('seller_id', decoded.id)
-        .order('created_at', { ascending: false });
-
-      setListings(listingsData || []);
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setProfile((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setNewImageFile(file);
-  };
-
-  const handleDeleteImage = async () => {
-    if (!profile.id) return;
-    const { error } = await supabase
-      .from('sellers')
-      .update({ profile_image_url: null })
-      .eq('id', profile.id);
-
-    if (error) {
-      console.error(error);
-      alert('Error deleting image');
-      return;
-    }
-
-    setProfile((prev) => ({ ...prev, profile_image_url: '' }));
-    alert('Image removed');
-  };
-
-  const handleSaveProfile = async () => {
-    if (!profile.id) return alert("User not identified.");
-
-    let imageUrl = profile.profile_image_url || '';
-
-    if (newImageFile) {
-      const ext = newImageFile.name.split('.').pop();
-      const fileName = `profile-${profile.id}-${Date.now()}.${ext}`;
-
-      const uploadResult = await supabase
-        .storage
-        .from('profile-pictures')
-        .upload(fileName, newImageFile);
-
-      if (uploadResult.error) {
-        console.error('Upload error:', uploadResult.error);
-        alert('Image upload failed: ' + (uploadResult.error.message || 'unknown error'));
+      if (!sellerData) {
+        window.location.href = '/';
         return;
       }
 
-      const { data: publicUrlData } = supabase
-        .storage
-        .from('profile-pictures')
-        .getPublicUrl(fileName);
+      setSeller(sellerData as Seller);
 
-      imageUrl = publicUrlData?.publicUrl || '';
-    }
+      const { data: sellerListings } = await supabase
+        .from('listing')
+        .select('*')
+        .eq('seller_id', currentUser.id)
+        .order('created_at', { ascending: false });
 
-    const { error } = await supabase
-      .from('sellers')
-      .upsert({ ...profile, profile_image_url: imageUrl }, { onConflict: 'id' });
+      if (sellerListings) {
+        const typedListings = sellerListings as Listing[];
+        setListings(typedListings);
+        const indices: { [key: string]: number } = {};
+        typedListings.forEach((l) => {
+          indices[l.id] = 0;
+        });
+        setCarouselIndices(indices);
+      }
+    };
 
-    if (error) {
-      alert('Error saving profile.');
-      console.error(error);
-    } else {
-      alert('Profile updated!');
-      setEditing(false);
-      setProfile((prev) => ({ ...prev, profile_image_url: imageUrl }));
-      setNewImageFile(null);
-    }
+    fetchSellerData();
+  }, []);
+
+  const handlePrev = (id: string, images: string[]) => {
+    setCarouselIndices((prev) => ({
+      ...prev,
+      [id]: (prev[id] - 1 + images.length) % images.length,
+    }));
   };
 
+  const handleNext = (id: string, images: string[]) => {
+    setCarouselIndices((prev) => ({
+      ...prev,
+      [id]: (prev[id] + 1) % images.length,
+    }));
+  };
+
+  if (!user || !seller) return <p>Loading seller profile...</p>;
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Seller Profile</h1>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <section className={styles.profileSection}>
-            {profile.profile_image_url ? (
-              <Image
-                src={profile.profile_image_url}
-                alt="Profile"
-                width={150}
-                height={150}
-                className={styles.image}
-              />
-            ) : (
-              <p>No profile image</p>
-            )}
-          </section>
-
-          {!editing ? (
-            <section className={styles.profileSection}>
-              <p><strong>Name:</strong> {profile.name}</p>
-              <p><strong>Bio:</strong> {profile.bio}</p>
-              <p><strong>Location:</strong> {profile.location}</p>
-              <button className={styles.button} onClick={() => setEditing(true)}>
-                Edit Profile
-              </button>
-            </section>
+    <div>
+      <Header />
+      <main className={styles.container}>
+        <section style={{ marginTop: '2rem' }}>
+          <h2 className={styles.sectionTitle}>Profile</h2>
+          {seller.profile_image_url ? (
+            <img
+              src={seller.profile_image_url}
+              alt="Profile"
+              width={150}
+              height={150}
+              style={{ borderRadius: '50%', objectFit: 'cover' }}
+            />
           ) : (
-            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
-              <label className={styles.label}>Name</label>
-              <input
-                className={styles.input}
-                name="name"
-                value={profile.name}
-                onChange={handleChange}
-              />
-
-              <label className={styles.label}>Bio</label>
-              <textarea
-                className={styles.textarea}
-                name="bio"
-                value={profile.bio}
-                onChange={handleChange}
-              />
-
-              <label className={styles.label}>Location</label>
-              <input
-                className={styles.input}
-                name="location"
-                value={profile.location}
-                onChange={handleChange}
-              />
-
-              <label className={styles.label}>Profile Image</label>
-              <input
-                className={styles.input}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-
-              {profile.profile_image_url && (
-                <button type="button" onClick={handleDeleteImage} className={styles.buttonDanger}>
-                  Delete Current Image
-                </button>
-              )}
-
-              <div className={styles.actions}>
-                <button className={styles.button} type="submit">Save</button>
-                <button type="button" className={styles.buttonDanger} onClick={() => setEditing(false)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
+            <p>No profile picture uploaded.</p>
           )}
 
-          <Link href="/seller-hub/add">
-            <button className={styles.button}>Add New Listing</button>
+          <h3 style={{ marginTop: '1rem' }}>{seller.name}</h3>
+          <p><strong>Bio:</strong> {seller.bio || 'No bio added yet.'}</p>
+          <p><strong>Location:</strong> {seller.location || 'No location provided.'}</p>
+
+          <div style={{ marginTop: '1rem' }}>
+            <Link href="/seller-hub/edit-profile" className={styles.button}>
+              Edit Profile
+            </Link>
+          </div>
+        </section>
+
+        <section style={{ marginTop: '3rem' }}>
+          <h2 className={styles.sectionTitle}>Listings</h2>
+          <Link href="/seller-hub/add-listing" className={styles.button}>
+            Add New Listing
           </Link>
 
-          <h2 className={styles.subtitle}>Your Listings</h2>
-          <div className={styles.grid}>
-            {listings.map((listing) => (
-              <div key={listing.id} className={styles.card}>
-                {listing.image && (
-                  <Image
-                    src={listing.image}
-                    alt={listing.title}
-                    width={300}
-                    height={200}
-                    className={styles.image}
-                  />
-                )}
-                <h3>{listing.title}</h3>
-                <div className={styles.actions}>
-                  <Link href={`/seller-hub/edit/${listing.id}`}>
-                    <button className={styles.button}>Edit</button>
-                  </Link>
-                  <Link href={`/seller-hub/delete/${listing.id}`}>
-                    <button className={styles.buttonDanger}>Delete</button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+          {listings.length === 0 ? (
+            <p style={{ marginBottom: '4rem' }}>No listings yet.</p>
+          ) : (
+            <div className={styles.grid} style={{ marginBottom: '4rem' }}>
+              {listings.map((listing) => {
+                const images = listing.images || [];
+                const activeIndex = carouselIndices[listing.id] || 0;
+                return (
+                  <div key={listing.id} className={styles.card}>
+                    <Link href={`/products/${listing.id}`}>
+                      <div style={{ position: 'relative', width: '300px', height: '300px', margin: '0 auto' }}>
+                        {images.length > 0 ? (
+                          <>
+                            <img
+                              src={images[activeIndex]}
+                              alt={listing.title}
+                              style={{
+                                width: '300px',
+                                height: '300px',
+                                objectFit: 'cover',
+                                borderRadius: '8px'
+                              }}
+                            />
+                            {images.length > 1 && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePrev(listing.id, images);
+                                  }}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '-15px',
+                                    transform: 'translateY(-50%)',
+                                    background: 'black',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '30px',
+                                    height: '30px',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    zIndex: 2
+                                  }}
+                                >
+                                  ‹
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleNext(listing.id, images);
+                                  }}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    right: '-15px',
+                                    transform: 'translateY(-50%)',
+                                    background: 'black',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '30px',
+                                    height: '30px',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    zIndex: 2
+                                  }}
+                                >
+                                  ›
+                                </button>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <div
+                            style={{
+                              width: '300px',
+                              height: '300px',
+                              backgroundColor: '#eee',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '8px'
+                            }}
+                          >
+                            <span>No Image</span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+
+                    <Link href={`/products/${listing.id}`}>
+                      <h3 style={{ cursor: 'pointer' }}>{listing.title}</h3>
+                    </Link>
+                    <p>{listing.description}</p>
+                    <p><strong>${listing.price?.toFixed(2)}</strong></p>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <Link
+                        href={`/seller-hub/edit-listing/${listing.id}`}
+                        className={styles.button}
+                      >
+                        Edit
+                      </Link>
+                      <Link
+                        href={`/seller-hub/delete-listing/${listing.id}`}
+                        className={styles.buttonDanger}
+                      >
+                        Delete
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
