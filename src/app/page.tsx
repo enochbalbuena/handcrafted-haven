@@ -123,7 +123,7 @@ export default function Home() {
               />
               <div className={styles.productInfo}>
                 <h4>Handthrown Ceramic Vase</h4>
-                <p className={styles.artistName}>by Sarah's Pottery</p>
+                <p className={styles.artistName}>by Sarah&apos;s Pottery</p>
                 <div className={styles.rating}>★★★★★ (12 reviews)</div>
                 <p className={styles.price}>$45.00</p>
               </div>
@@ -170,11 +170,11 @@ export default function Home() {
           <div className={styles.communityContent}>
             <div className={styles.testimonials}>
               <div className={styles.testimonial}>
-                <p>"I love supporting independent artisans and finding unique pieces that you can't get anywhere else. The quality is amazing!"</p>
+                <p>&quot;I love supporting independent artisans and finding unique pieces that you can&apos;t get anywhere else. The quality is amazing!&quot;</p>
                 <cite>- Emma K., Happy Customer</cite>
               </div>
               <div className={styles.testimonial}>
-                <p>"As a potter, Handcrafted Haven has helped me reach customers I never would have found. The community is so supportive!"</p>
+                <p>&quot;As a potter, Handcrafted Haven has helped me reach customers I never would have found. The community is so supportive!&quot;</p>
                 <cite>- Marcus T., Artisan</cite>
               </div>
             </div>
@@ -201,7 +201,7 @@ export default function Home() {
         <div className={styles.container}>
           <div className={styles.ctaContent}>
             <h2>Ready to Start Your Journey?</h2>
-            <p>Whether you're looking for unique handcrafted items or ready to share your creations with the world, Handcrafted Haven is here for you.</p>
+            <p>Whether you&apos;re looking for unique handcrafted items or ready to share your creations with the world, Handcrafted Haven is here for you.</p>
             <div className={styles.ctaButtons}>
               <button className={`${styles.reusablebutton} ${styles.primaryButton}`}>
                 Start Shopping
@@ -213,7 +213,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
     </div>
   );

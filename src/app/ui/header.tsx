@@ -1,11 +1,15 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/database";
 import styles from "../page.module.css";
 import { useEffect, useState } from "react";
 
 export default function Header() {
+
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
@@ -26,6 +30,30 @@ export default function Header() {
       window.removeEventListener("cartUpdated", updateCartCount);
     };
   }, []);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setLoggedIn(!!user);
+    };
+
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   return (
     <header className={styles.header}>
@@ -70,6 +98,9 @@ export default function Header() {
               About
             </Link>
           </li>
+          <li><Link href="/" className={styles.navLink}>Home</Link></li>
+          <li><Link href="/products" className={styles.navLink}>Shop</Link></li>
+          <li><Link href="/seller-hub" className={styles.navLink}>Seller Profile</Link></li>
         </ul>
       </nav>
 
@@ -94,9 +125,13 @@ export default function Header() {
         <Link href="/favorites" className={styles.iconLink}>
           <span className={styles.favoriteIcon}>❤️</span>
         </Link>
-        <Link href="/login" className={styles.loginLink}>
-          <button className={styles.loginButton}>Login</button>
-        </Link>
+        {loggedIn ? (
+          <button onClick={handleLogout} className={styles.loginButton}>Logout</button>
+        ) : (
+          <Link href="/login" className={styles.loginLink}>
+            <button className={styles.loginButton}>Login</button>
+          </Link>
+        )}
       </div>
 
       {/* Mobile Menu Toggle */}
