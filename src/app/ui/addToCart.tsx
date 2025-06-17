@@ -2,11 +2,11 @@ import React from "react";
 import styles from "@/app/products/products.module.css";
 
 interface Product {
-  id: number;
-  name: string;
+  id?: string;
+  name?: string;
   description?: string;
-  image: string;
-  price: number;
+  image?: string;
+  price?: number;
   rating?: number;
   reviews?: number;
   quantity?: number;
