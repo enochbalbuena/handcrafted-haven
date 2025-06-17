@@ -1,8 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../page.module.css";
+import { useEffect, useState } from "react";
 
 export default function Header() {
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const totalQuantity = cart.reduce(
+        (acc: number, item: { quantity?: number }) => acc + (item.quantity || 1),
+        0
+      );
+      setCartCount(totalQuantity);
+    };
+
+    updateCartCount();
+
+    window.addEventListener("cartUpdated", updateCartCount);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
+  }, []);
+
   return (
     <header className={styles.header}>
       {/* Logo */}
@@ -31,19 +55,6 @@ export default function Header() {
               Shop
             </Link>
           </li>
-          {/* <li className={styles.dropdown}>
-            <Link href="/shop" className={styles.navLink}>
-              Shop
-            </Link>
-            <ul className={styles.dropdownMenu}>
-              <li><Link href="/shop">All Products</Link></li>
-              <li><Link href="/shop/pottery">Pottery & Ceramics</Link></li>
-              <li><Link href="/shop/jewelry">Jewelry & Accessories</Link></li>
-              <li><Link href="/shop/textiles">Textiles & Fiber</Link></li>
-              <li><Link href="/shop/wood">Wood & Furniture</Link></li>
-              <li><Link href="/shop/featured">Featured Items</Link></li>
-            </ul>
-          </li> */}
           <li>
             <Link href="/artisans" className={styles.navLink}>
               Artisans
@@ -70,9 +81,7 @@ export default function Header() {
             placeholder="Search handcrafted items..."
             className={styles.searchInput}
           />
-          <button className={styles.searchButton}>
-            🔍
-          </button>
+          <button className={styles.searchButton}>🔍</button>
         </div>
       </div>
 
@@ -80,7 +89,7 @@ export default function Header() {
       <div className={styles.userActions}>
         <Link href="/cart" className={styles.iconLink}>
           <span className={styles.cartIcon}>🛒</span>
-          <span className={styles.cartCount}>0</span>
+          <span className={styles.cartCount}>{cartCount}</span>
         </Link>
         <Link href="/favorites" className={styles.iconLink}>
           <span className={styles.favoriteIcon}>❤️</span>
@@ -91,9 +100,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu Toggle */}
-      <button className={styles.mobileMenuToggle}>
-        ☰
-      </button>
+      <button className={styles.mobileMenuToggle}>☰</button>
     </header>
   );
 }
