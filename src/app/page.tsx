@@ -163,7 +163,9 @@ export default function Home() {
           </div>
           <div className={styles.centerButton}>
             <button className={`${styles.reusablebutton} ${styles.primaryButton}`}>
-              View All Products
+              <Link href="/products">
+                View All Products
+              </Link>
             </button>
           </div>
         </div>
