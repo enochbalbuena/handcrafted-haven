@@ -1,5 +1,7 @@
 import Header from "./ui/header";
 import styles from "./page.module.css";
+import Link from "next/link";
+
 
 export default function Home() {
   return (
@@ -19,10 +21,14 @@ export default function Home() {
             </p>
             <div className={styles.heroButtons}>
               <button className={`${styles.reusablebutton} ${styles.primaryButton}`}>
-                Shop Now
+                <Link href="/products">
+                  Shop Now
+                </Link>
               </button>
               <button className={`${styles.reusablebutton} ${styles.secondaryButton}`}>
-                Become a Seller
+                <Link href="/seller-hub">
+                  Become a Seller
+                </Link>
               </button>
             </div>
           </div>
