@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/database';
 import Header from '@/app/ui/header';
 import styles from '../products.module.css';
+import AddToCartButton from '@/app/ui/addToCart';
 
 interface Product {
   id: string;
@@ -158,7 +159,7 @@ export default function ProductDetailPage() {
               <p className={styles.rating}>{renderStars(averageRating)} ({reviews.length} reviews)</p>
               <p className={styles.productPrice}>${product.price?.toFixed(2)}</p>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button className={styles.addToCartButton}>Add to Cart</button>
+                <AddToCartButton product={product}/>
                 <button className={styles.favoriteButton}>❤️</button>
               </div>
             </div>
